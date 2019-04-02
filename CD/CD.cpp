@@ -28,27 +28,46 @@ pecatiPesniPoTip(tip t) – со кој се печатат информации
 Комплетна функционалност (5 поени).
 */
 
-enum tip{ pop, rap, rok};
+enum tip{ POP, RAP, ROK};
 
 class Pesna
 {
 private:
-    char ime[20];
+    char *ime;
     int minuti;
     tip t;      //Inicijaliziranje na el. na Pesna
 public:
-    Pesna(){}
-    Pesna(const char *i, int minuti, tip tt) //Konstruktor
+    Pesna(){ ime = new char[0]; }
+
+    Pesna(char *i, int minuti, tip tt) //Konstruktor
     {
-        //ime = new char[strlen(i)+1];
+        ime = new char[strlen(i)+1];
         strcpy(ime,i);
 
         this->minuti = minuti;
         t = tt;
     }
-    ~Pesna()
+
+    Pesna(const Pesna &m)
     {
-        //delete [] ime; //Destruktor za din. al. memorija
+        ime = new char[strlen(m.ime)+1];
+        strcpy(ime,m.ime);
+
+        minuti = m.minuti;
+        t = m.t;
+    }
+
+    Pesna& operator=(const Pesna &m)
+    {
+        if(this != &m)
+        {
+            delete [] ime;
+            ime = new char[strlen(m.ime)+1];
+            strcpy(ime,m.ime);
+            minuti = m.minuti;
+            t = m.t;
+        }
+        return *this;
     }
 
     void pecati()
@@ -58,7 +77,12 @@ public:
 
     int getMinuti(){ return minuti; }
     char *getIme() { return ime; }
-    int getTip(){ return t; }       //Get metodi
+    tip getTip(){ return t; }       //Get metodi
+
+    ~Pesna()
+    {
+        delete [] ime;
+    }
 };
 
 class CD
@@ -67,7 +91,7 @@ private:
     Pesna pesni[10];
     int snimeni,vreme;
 public:
-    CD(){}
+    CD(){ snimeni=0; }
     CD( int vreme )     //Konstruktor so eden argument za slobodnoto vreme na CD-to
     {
         snimeni=0;      //Bidejki pocetno nemame niedna Pesna na CD-to
@@ -83,9 +107,9 @@ public:
             pesni[i] = p[i];
         }
     }*/
-    ~CD(){}
+    
 
-    Pesna getPesna(int i)
+    Pesna& getPesna(int i)
     {
         return pesni[i];
     }
@@ -94,7 +118,7 @@ public:
 
     void setSnimeni(int s){ snimeni = s; }  //Potrebna set metoda
 
-    int vremeNaPesni()  //F-ja za proveruvanje na slobodno mesto za uste pesni na CD-to
+    /*int vremeNaPesni()  //F-ja za proveruvanje na slobodno mesto za uste pesni na CD-to
     {
         int vkupno = 0;
         for(int i=0; i<snimeni; i++)
@@ -134,7 +158,38 @@ public:
                 pesni[i].pecati();
             }
         }
+    }*/
+    
+    void dodadiPesna (Pesna &nova)
+    {
+        int suma=0;
+        for(int i=0;i<snimeni;i++)
+        {
+            suma = suma + pesni[i].getMinuti();
+        }
+		if(suma + nova.getMinuti() <=vreme)
+        {
+            if(snimeni<9)
+            {
+                pesni[snimeni] = nova;
+                snimeni++;
+            }
+        }
     }
+    
+    void pecatiPesniPoTip(tip kojtip)
+    {
+        for(int i=0;i<snimeni;i++)
+        {
+            if(pesni[i].getTip()==kojtip)
+        	{
+            	pesni[i].pecati();
+        	}
+        }
+        
+    }
+    
+    ~CD(){}
 };
 
 int main() {
